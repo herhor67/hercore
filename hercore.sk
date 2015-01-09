@@ -1,0 +1,3 @@
+on skript load:
+	send "dupa"
+    ewew
