@@ -1,3 +1,303 @@
-on skript load:
-	send "dupa"
-    ewew
+#Alpha#
+#hercore baza
+options:
+	czas: 2
+	noperm: &cNie masz uprawnień aby to zrobić!
+
+aliases:
+	fajerwerk = 401
+	krata = 101
+	tabliczka = 323
+
+on script load:
+	wait 1 second
+	execute server command "/odswiezplikihercore"
+	set {_version} to content of file "plugins/Skript/scripts/%script%.sk"
+	set {_v} to index of "##" in {_version}
+	set {_v2} to subtext of {_version} from character ({_v}+1) to character (length of {_version})
+	set {_v3} to index of "##" in {_v2}
+	set {hercore::version} to subtext of {_version} from character ({_v}+1) to character ({_v3})
+#--------------------{ Aktualizacja HerCORE }--------------------#
+	set {_version} to text from url "https://raw.githubusercontent.com/herhor67/hercore/master/hercore.sk"
+	set {_v} to index of "##" in {_version}
+	set {_v2} to subtext of {_version} from character ({_v}+1) to character (length of {_version})
+	set {_v3} to index of "##" in {_v2}
+	set {_version.new} to subtext of {_version} from character ({_v}+1) to character ({_v3})
+	{hercore::version} is not {_version.new}:
+		wait 1 second
+		download "https://raw.githubusercontent.com/herhor67/hercore/master/hercore.sk" to "plugins/Skript/scripts/%script%.sk"
+		send "[HerCORE] Pobrano nową wersję!" to console
+#--------------------{ Aktualizacja Skryptów }--------------------#
+	loop {hercore::auto::*}:
+		send  "&6Pobieranie &c%loop-index% &6bo autoaktualizacja jest %loop-value%" to all ops
+		{hercore::status::%loop-index%} is "&aAktywny":
+			download "https://raw.githubusercontent.com/herhor67/%loop-index%/master/%loop-index%.sk" to "plugins/Skript/scripts/%{hercore::file::%loop-index%}%"
+		else:
+			clear {hercore::auto::%loop-index%}
+
+#-------------------------------------------------------#
+	set {hercore::plik::hercore} to "%script%"
+	send "[HerCORE] Załadowano pomyślnie!" to console
+
+on script unload:
+	send "[HerCORE] Wyłączono pomyślnie!" to console
+	clear {herhorcore::plik::hercore}
+
+every 10 seconds:
+	execute server command "/odswiezplikihercore"
+
+command /odswiezplikihercore:
+	trigger:
+		clear {hercore::plik::*}
+		clear {hercore::status::*}
+		set {_skrypty::*} to all files in "plugins/Skript/scripts/"
+		loop {_skrypty::*}:
+			set {_ishccomp} to content of file "plugins/Skript/scripts/%loop-value%"
+			if {_ishccomp} contains "##hercore":
+				if {_ishccomp} doesn't contain "##hercore baza":
+					if {_ishccomp} contains "jailbreak":
+						set {_name} to "jailbreak"
+					if {_ishccomp} contains "legarmbreak":
+						set {_name} to "legarmbreak"
+					if {_ishccomp} contains "superdrops":
+						set {_name} to "superdrops"
+					if {_ishccomp} contains "realtime":
+						set {_name} to "realtime"
+					if {_ishccomp} contains "iteminfo":
+						set {_name} to "iteminfo"
+					if {_ishccomp} contains "devilsheep":
+						set {_name} to "devilsheep"
+					if {_ishccomp} contains "greatfountain":
+						set {_name} to "greatfountain"
+					if {_ishccomp} contains "electricfence":
+						set {_name} to "electricfence"
+					if {_ishccomp} contains "fishingapi":
+						set {_name} to "fishingapi"
+					if {_ishccomp} contains "magicsprings":
+						set {_name} to "magicsprings"
+					if {_ishccomp} contains "footprints":
+						set {_name} to "footprints"
+					if {_ishccomp} contains "banmanager":
+						set {_name} to "banmanager"
+					if {_ishccomp} contains "heartbar":
+						set {_name} to "heartbar"
+					if {_ishccomp} contains "firework":
+						set {_name} to "firework"
+					if {_ishccomp} contains "werewolf":
+						set {_name} to "werewolf"
+					if {_ishccomp} contains "textbuilder":
+						set {_name} to "textbuilder"
+					if {_ishccomp} contains "betterweapons":
+						set {_name} to "betterweapons"
+					first character of loop-value is "-":
+						set {hercore::status::%{_name}%} to "&6Nieaktywny"
+					else:
+						set {hercore::status::%{_name}%} to "&aAktywny"
+					set {hercore::plik::%{_name}%} to loop-value
+
+
+command /hercore:
+	permission: hercore.admin
+	permission message: {@noperm}
+	trigger:
+		execute server command "/hercoremenu %player% spis"
+
+command /hercoremenu <player> <text> [<text>]:
+	trigger:
+		arg 2 is "spis":
+			open chest with 6 rows named "     &1&lHer&4&lCore" to player-arg
+			wait 1 tick
+			execute server command "hercoremenu %player-arg% clearwindow"
+			{hercore::status::jailbreak} is set:
+				format slot 10 of player-arg with krata named "&aJailBreak" with lore "%{hercore::status::jailbreak}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo jailbreak"
+			else:
+				format slot 10 of player-arg with krata named "&cJailBreak" with lore "&cNie zainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo jailbreak"
+			{hercore::plik::superdrops} is set:
+				format slot 11 of player-arg with diamond named "&aSuperDrops" with lore "%{hercore::status::superdrops}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo superdrops"
+			else:
+				format slot 11 of player-arg with diamond named "&cSuperDrops" with lore "&cNiezainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo superdrops"
+			{hercore::plik::firework} is set:
+				format slot 12 of player-arg with fajerwerk named "&aFireWork" with lore "%{hercore::status::firework}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo firework"
+			else:
+				format slot 12 of player-arg with fajerwerk named "&cFireWork" with lore "&cNiezainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo firework"
+			{hercore::plik::werewolf} is set:
+				format slot 13 of player-arg with bone named "&aWereWolf" with lore "%{hercore::status::werewolf}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo werewolf"
+			else:
+				format slot 13 of player-arg with bone named "&cWereWolf" with lore "&cNiezainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% sciptinfo werewolf"
+			{hercore::plik::heartbar} is set:
+				format slot 14 of player-arg with potion of regeneration named "&aHeartBar" with lore "%{hercore::status::heartbar}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo heartbar"
+			else:
+				format slot 14 of player-arg with potion of regeneration named "&cHeartBar" with lore "&cNiezainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo heartbar"
+			{hercore::plik::banmanager} is set:
+				format slot 15 of player-arg with blaze rod named "&aBanManager" with lore "%{hercore::status::banmanager}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo banmanager"
+			else:
+				format slot 15 of player-arg with blaze rod named "&cBanManager" with lore "&cNiezainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo banmanager"
+			{hercore::plik::magicsprings} is set:
+				format slot 16 of player-arg with water bucket named "&aMagicSprings" with lore "%{hercore::status::magicsprings}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo magicsprings"
+			else:
+				format slot 16 of player-arg with water bucket named "&cMagicSprings" with lore "&cNiezainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo magicsprings"
+			{hercore::plik::greatfountain} is set:
+				format slot 19 of player-arg with water named "&aGreatFountain" with lore "%{hercore::status::greatfountain}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo greatfountain"
+			else:
+				format slot 19 of player-arg with water named "&cGreatFountain" with lore "&cNiezainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo greatfountain"
+			{hercore::plik::electricfence} is set:
+				format slot 20 of player-arg with fence named "&aElectricFence" with lore "%{hercore::status::electricfence}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo electricfence"
+			else:
+				format slot 20 of player-arg with fence named "&cElectricFence" with lore "&cNiezainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo elwctricfence"
+			{hercore::plik::devilsheep} is set:
+				format slot 21 of player-arg with pink wool named "&aDevilSheep" with lore "%{hercore::status::devilsheep}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo devilsheep"
+			else:
+				format slot 21 of player-arg with pink wool named "&cDevilSheep" with lore "&cNiezainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo devilsheep"
+			{hercore::plik::legarmbreak} is set:
+				format slot 22 of player-arg with paper named "&aLeg&&aArmBreak" with lore "%{hercore::status::legarmbreak}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo legarmbreak"
+			else:
+				format slot 22 of player-arg with paper named "&cLeg&&cArmBreak" with lore "&cNiezainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo legaembreak"
+			{hercore::plik::textbuilder} is set:
+				format slot 23 of player-arg with tabliczka named "&aTextBuilder" with lore "%{hercore::status::textbuilder}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo textbuilder"
+			else:
+				format slot 23 of player-arg with tabliczka named "&cTextBuilder" with lore "&cNiezainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo textbuilder"
+			{hercore::plik::betterweapons} is set:
+				format slot 24 of player-arg with iron sword named "&aBetterWeapons" with lore "%{hercore::status::betterweapons}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo betterweapons"
+			else:
+				format slot 24 of player-arg with iron sword named "&cBetterWeapons" with lore "&cNiezainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo betterweapons"
+#====={ Mini Skrypty }=====#
+			format slot 40 of player-arg with compass named "&6Mini Skrypty" with lore "&7Kliknij aby zobaczyć" to run "hercoremenu %player-arg% mini"
+		arg 2 is "mini":
+			execute server command "/hercoremenu %player-arg% clearwindow"
+			{hercore::plik::realtime} is set:
+				format slot 10 of player-arg with clock named "&aRealTime" with lore "%{hercore::status::realtime}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo realtime"
+			else:
+				format slot 10 of player-arg with clock named "&cRealTime" with lore "&cNiezainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo realtime"
+			{hercore::plik::iteminfo} is set:
+				format slot 11 of player-arg with empty map named "&aItemInfo" with lore "%{hercore::status::iteminfo}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo iteminfo"
+			else:
+				format slot 11 of player-arg with empty map named "&cItemInfo" with lore "&cNiezainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo iteminfo"
+			{hercore::plik::footprints} is set:
+				format slot 12 of player-arg with gray stained glass pane named "&aFootPrints" with lore "%{hercore::status::footprints}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo footprints"
+			else:
+				format slot 12 of player-arg with gray stained glass pane named "&cFootPrints" with lore "&cNiezainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo footprints"
+
+		arg 2 is "scriptinfo":
+			execute server command "hercoremenu %player-arg% clearwindow"
+			format slot 10 of player-arg with name tag named "&cNazwa skryptu: %arg 3%" to be unstealable
+			format slot 11 of player-arg with empty map named "&9Forum" with lore "&bKliknij, aby przejść do tematu na forum" to close then run "hercoremenu %player-arg% forumlink %arg 3%"
+			{hercore::plik::%arg 3%} isn't set:
+				format slot 12 of player-arg with clock named "&2Pobierz" with lore "&aKliknij, aby pobrać" to run "hercoremenu %player-arg% download %arg 3%"
+			else:
+				{hercore::status::%arg 3%} is "&aAktywny":
+					format slot 12 of player-arg with compass named "&6Odśwież" with lore "&eKliknij aby odświeżyć" to run "hercoremenu %player-arg% reload %arg 3%"
+					format slot 13 of player-arg with lever named "&6Wyłącz" with lore "&eKliknij, aby wyłączyć skrypt" to run "hercoremenu %player-arg% disable %arg 3%"
+					{hercore::auto::%arg 3%} is "&2Włączona":
+						format slot 14 of player-arg with clock named "&2Automatyczna aktualizacja" with lore "&2Włączona||&aKliknij, aby wyłączyć aktualizację" to run "hercoremenu %player-arg% autooff %arg 3%"
+					else:
+						format slot 14 of player-arg with clock named "&2Automatyczna aktualizacja" with lore "&cWyłączona||&aKliknij, aby włączyć aktualizację" to run "hercoremenu %player-arg% autoon %arg 3%"
+				else:
+					format slot 12 of player-arg with clock named "&2Aktualizuj" with lore "&aKliknij, aby zaktualizować" to run "hercoremenu %player-arg% actualise %arg 3%"
+					format slot 13 of player-arg with lever named "&6Włącz" with lore "&eKliknij, aby włączyć skrypt" to run "hercoremenu %player-arg% enable %arg 3%"
+					format slot 14 of player-arg with red wool named "&4Usuń" with lore "&cKliknij, aby usunąć skrypt" to run "hercoremenu %player-arg% delete %arg 3%"
+		arg 2 is "forumlink":   
+			send json "&7[&1&lHer&4&lCore&7] &6Kliknij ten tekst, aby zobaczyć temat o skrypcie &c%arg 3%&6. Oczywiście po 5 sekundach kliknij ""SKIP AD""!" tooltip "&3Temat o skrypcie:%nl%&9%arg 3%" open "http://adf.ly/7923240/%arg 3%" to player-arg
+			wait 5 seconds
+			execute server command "/hercoremenu %player-arg% scriptinfo %arg 3%"
+		arg 2 is "disable":
+			execute server command "/hercoremenu %player-arg% aniyellow &6Wyłączanie"
+			wait 1 tick
+			execute server command "/sk disable %{hercore::plik::%arg 3%}%"
+			wait 27 ticks
+			execute server command "/odswiezplikihercore"
+			execute server command "/hercoremenu %player-arg% scriptinfo %arg 3%"
+		arg 2 is "enable":
+			execute server command "/hercoremenu %player-arg% aniyellow &6Włączanie"
+			wait 1 tick
+			execute server command "/sk enable %{hercore::plik::%arg 3%}%"
+			wait 27 ticks
+			execute server command "/odswiezplikihercore"
+			execute server command "/hercoremenu %player-arg% scriptinfo %arg 3%"
+		arg 2 is "delete":
+			execute server command "/hercoremenu %player-arg% anired &4Usuwanie"
+			wait 1 tick
+			delete file "plugins/Skript/scripts/%{hercore::plik::%arg 3%}%"
+			wait 27 ticks
+			execute server command "/odswiezplikihercore"
+			execute server command "/hercoremenu %player-arg% scriptinfo %arg 3%"
+		arg 2 is "download":
+			execute server command "/hercoremenu %player-arg% anigreen &aPobieranie"
+			wait 1 tick
+			download "https://raw.githubusercontent.com/herhor67/%arg 3%/master/%arg 3%.sk" to "plugins/Skript/scripts/%arg 3%.sk"
+			wait 27 ticks
+			execute server command "/odswiezplikihercore"
+			execute server command "/hercoremenu %player-arg% scriptinfo %arg 3%"
+		arg 2 is "actualise":
+			execute server command "/hercoremenu %player-arg% anigreen &aAktualizacja"
+			wait 1 tick
+			download "https://raw.githubusercontent.com/herhor67/%arg 3%/master/%arg 3%.sk" to "plugins/Skript/scripts/%{hercore::plik::%arg 3%}%"
+			wait 27 ticks
+			execute server command "/odswiezplikihercore"
+			execute server command "/hercoremenu %player-arg% scriptinfo %arg 3%"
+		arg 2 is "reload":
+			execute server command "/sk reload %{hercore::plik::% arg 3%}%"
+			wait 1 tick
+			execute server command "/hercoremenu %player-arg% anidarkblue &bOdświeżanie"
+			wait 27 ticks
+			execute server command "/odswiezplikihercore"
+			execute server command "/hercoremenu %player-arg% scriptinfo %arg 3%"
+		arg 2 is "autoon":
+			execute server command "/hercoremenu %player-arg% clearwindow"
+			wait 3 ticks
+			set {hercore::auto::%arg 3%} to "&2Włączona"
+			wait 3 ticks
+			execute server command "/odswiezplikihercore"
+			execute server command "/hercoremenu %player-arg% scriptinfo %arg 3%"
+		arg 2 is "autooff":
+			execute server command "/hercoremenu %player-arg% clearwindow"
+			wait 3 ticks
+			set {hercore::auto::%arg 3%} to "&cWyłączona"
+			wait 3 ticks
+			execute server command "/odswiezplikihercore"
+			execute server command "/hercoremenu %player-arg% scriptinfo %arg 3%"
+			
+#=====================#
+#      ANIMATIONS     #
+#=====================#
+		arg 2 is "anidarkblue":
+			execute server command "/hercoremenu %player-arg% clearwindow"
+			set {_slot} to 0
+			loop 27 times:
+				add 2 to {_slot}
+				format slot {_slot}-2 of player-arg with lapis lazuli block named "%coloured arg 3%" to be unstealable
+				format slot {_slot}-1 of player-arg with lapis lazuli block named "%coloured arg 3%" to be unstealable
+				wait 1 tick
+			clear {_slot}
+		arg 2 is "clearwindow":
+			set {_slot} to 0
+			loop 54 times:
+				add 1 to {_slot}
+				format slot {_slot}-1 of player-arg with 1 air to be unstealable
+			clear {_slot}
+		arg 2 is "anigreen":
+			execute server command "/hercoremenu %player-arg% clearwindow"
+			set {_slot} to 0
+			loop 27 times:
+				add 2 to {_slot}
+				format slot {_slot}-2 of player-arg with emerald block named "%coloured arg 3%" to be unstealable
+				format slot {_slot}-1 of player-arg with emerald block named "%coloured arg 3%" to be unstealable
+				wait 1 tick
+			clear {_slot}
+		arg 2 is "aniyellow":
+			execute server command "/hercoremenu %player-arg% clearwindow"
+			set {_slot} to 0
+			loop 27 times:
+				add 2 to {_slot}
+				format slot {_slot}-2 of player-arg with gold block named "%coloured arg 3%" to be unstealable
+				format slot {_slot}-1 of player-arg with gold block named "%coloured arg 3%" to be unstealable
+				wait 1 tick
+			clear {_slot}
+		arg 2 is "anired":
+			execute server command "/hercoremenu %player-arg% clearwindow"
+			set {_slot} to 0
+			loop 27 times:
+				add 2 to {_slot}
+				format slot {_slot}-2 of player-arg with redstone block named "%coloured arg 3%" to be unstealable
+				format slot {_slot}-1 of player-arg with redstone block named "%coloured arg 3%" to be unstealable
+				wait 1 tick
+			clear {_slot}
