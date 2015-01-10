@@ -1,5 +1,19 @@
 #Alpha#
 #hercore baza
+#=============================================#
+#   Skrypt napisany przez: herhor67           #
+#   Nazwa: HerCORE                            #
+#=============================================#
+#  Licencja skryptu:                          #
+# * Nie zezwalam na:                          #
+# - Usuwanie treści o autorze!                #
+# - Podszywanie się pod autora!               #
+# - Używanie kodu skryptu w swoich skryptach! #
+# - Zarabianie na skrypcie!                   #
+# - Wrzucanie skryptu do internetu!           #
+# - Dodawanie kodu na swoja potrzebe!         #
+# - Modyfikowanie kodu na swoja potrzebe!     #
+#=============================================#
 options:
 	czas: 2
 	noperm: &cNie masz uprawnień aby to zrobić!
@@ -27,15 +41,7 @@ on script load:
 		wait 1 second
 		download "https://raw.githubusercontent.com/herhor67/hercore/master/hercore.sk" to "plugins/Skript/scripts/%script%.sk"
 		send "[HerCORE] Pobrano nową wersję!" to console
-#--------------------{ Aktualizacja Skryptów }--------------------#
-	loop {hercore::auto::*}:
-		send  "&6Pobieranie &c%loop-index% &6bo autoaktualizacja jest %loop-value%" to all ops
-		{hercore::status::%loop-index%} is "&aAktywny":
-			download "https://raw.githubusercontent.com/herhor67/%loop-index%/master/%loop-index%.sk" to "plugins/Skript/scripts/%{hercore::file::%loop-index%}%"
-		else:
-			clear {hercore::auto::%loop-index%}
 
-#-------------------------------------------------------#
 	set {hercore::plik::hercore} to "%script%"
 	send "[HerCORE] Załadowano pomyślnie!" to console
 
@@ -176,7 +182,11 @@ command /hercoremenu <player> <text> [<text>]:
 				format slot 12 of player-arg with gray stained glass pane named "&aFootPrints" with lore "%{hercore::status::footprints}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo footprints"
 			else:
 				format slot 12 of player-arg with gray stained glass pane named "&cFootPrints" with lore "&cNiezainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo footprints"
-
+			{hercore::plik::fishingapi} is set:
+				format slot 13 of player-arg with fishing rod named "&aFishingApi" with lore "%{hercore::status::fishingapi}%||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo fishingapi"
+			else:
+				format slot 13 of player-arg with fishing rod named "&cFishingApi" with lore "&cNiezainstalowany||&7Kliknij po informacje" to run "hercoremenu %player-arg% scriptinfo fishingapi"
+			format slot 40 of player-arg with compass named "&9Powrót" with lore "&bKliknij, aby powrócić" to run "hercoremenu %player-arg% spis"
 		arg 2 is "scriptinfo":
 			execute server command "hercoremenu %player-arg% clearwindow"
 			format slot 10 of player-arg with name tag named "&cNazwa skryptu: %arg 3%" to be unstealable
@@ -187,14 +197,11 @@ command /hercoremenu <player> <text> [<text>]:
 				{hercore::status::%arg 3%} is "&aAktywny":
 					format slot 12 of player-arg with compass named "&6Odśwież" with lore "&eKliknij aby odświeżyć" to run "hercoremenu %player-arg% reload %arg 3%"
 					format slot 13 of player-arg with lever named "&6Wyłącz" with lore "&eKliknij, aby wyłączyć skrypt" to run "hercoremenu %player-arg% disable %arg 3%"
-					{hercore::auto::%arg 3%} is "&2Włączona":
-						format slot 14 of player-arg with clock named "&2Automatyczna aktualizacja" with lore "&2Włączona||&aKliknij, aby wyłączyć aktualizację" to run "hercoremenu %player-arg% autooff %arg 3%"
-					else:
-						format slot 14 of player-arg with clock named "&2Automatyczna aktualizacja" with lore "&cWyłączona||&aKliknij, aby włączyć aktualizację" to run "hercoremenu %player-arg% autoon %arg 3%"
 				else:
 					format slot 12 of player-arg with clock named "&2Aktualizuj" with lore "&aKliknij, aby zaktualizować" to run "hercoremenu %player-arg% actualise %arg 3%"
 					format slot 13 of player-arg with lever named "&6Włącz" with lore "&eKliknij, aby włączyć skrypt" to run "hercoremenu %player-arg% enable %arg 3%"
 					format slot 14 of player-arg with red wool named "&4Usuń" with lore "&cKliknij, aby usunąć skrypt" to run "hercoremenu %player-arg% delete %arg 3%"
+			format slot 40 of player-arg with compass named "&9Powrót" with lore "&bKliknij, aby powrócić" to run "hercoremenu %player-arg% spis"
 		arg 2 is "forumlink":   
 			send json "&7[&1&lHer&4&lCore&7] &6Kliknij ten tekst, aby zobaczyć temat o skrypcie &c%arg 3%&6. Oczywiście po 5 sekundach kliknij ""SKIP AD""!" tooltip "&3Temat o skrypcie:%nl%&9%arg 3%" open "http://adf.ly/7923240/%arg 3%" to player-arg
 			wait 5 seconds
@@ -223,14 +230,22 @@ command /hercoremenu <player> <text> [<text>]:
 		arg 2 is "download":
 			execute server command "/hercoremenu %player-arg% anigreen &aPobieranie"
 			wait 1 tick
-			download "https://raw.githubusercontent.com/herhor67/%arg 3%/master/%arg 3%.sk" to "plugins/Skript/scripts/%arg 3%.sk"
+			arg 3 is "iteminfo" or "footprints" or "fishingapi" or "realtime":
+				set {_nazwa} to "miniskrypty"
+			else:
+				set {_nazwa} to arg 3
+			download "https://raw.githubusercontent.com/herhor67/%{_nazwa}%/master/%arg 3%.sk" to "plugins/Skript/scripts/%arg 3%.sk"
 			wait 27 ticks
 			execute server command "/odswiezplikihercore"
 			execute server command "/hercoremenu %player-arg% scriptinfo %arg 3%"
 		arg 2 is "actualise":
 			execute server command "/hercoremenu %player-arg% anigreen &aAktualizacja"
 			wait 1 tick
-			download "https://raw.githubusercontent.com/herhor67/%arg 3%/master/%arg 3%.sk" to "plugins/Skript/scripts/%{hercore::plik::%arg 3%}%"
+			arg 3 is "iteminfo" or "footprints" or "fishingapi" or "realtime":
+				set {_nazwa} to "miniskrypty"
+			else:
+				set {_nazwa} to arg 3
+			download "https://raw.githubusercontent.com/herhor67/%{_nazwa}%/master/%arg 3%.sk" to "plugins/Skript/scripts/%{hercore::plik::%arg 3%}%"
 			wait 27 ticks
 			execute server command "/odswiezplikihercore"
 			execute server command "/hercoremenu %player-arg% scriptinfo %arg 3%"
@@ -301,3 +316,6 @@ command /hercoremenu <player> <text> [<text>]:
 				format slot {_slot}-1 of player-arg with redstone block named "%coloured arg 3%" to be unstealable
 				wait 1 tick
 			clear {_slot}
+
+# End of File #
+# Thanks 4 using #
